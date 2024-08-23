@@ -1,3 +1,8 @@
+const log4js = require('log4js');
+const logger = log4js.getLogger('Utils');
+const { logLevel } = require('../config.json');
+logger.level = logLevel;
+
 const { ActionRowBuilder, ButtonComponent } = require('discord.js');
 
 /**
@@ -24,6 +29,33 @@ function buildActionRows(...buttons) {
 	return rows;
 }
 
+/**
+ *
+ * @param {Number} dateNumber The date in millis
+ */
+function convertDate(dateNumber) {
+	const date = new Date(dateNumber);
+	const year = date.getFullYear();
+	const month = date.getMonth() + 1;
+	const dayOfMonth = date.getDate();
+	const dateString = `${month}/${dayOfMonth}/${year}`;
+	return dateString;
+}
+
+/**
+ * Prints the map values in a readable format
+ * @param {Map} map The map to convert
+ */
+function mapToString(map) {
+	let ret = '';
+	map.forEach((value, key) => {
+		ret += `${key}: ${value}\n`;
+	});
+	return ret;
+}
+
 module.exports = {
-	buildActionRows
+	buildActionRows,
+	convertDate,
+	mapToString
 };

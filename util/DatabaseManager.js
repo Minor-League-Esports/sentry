@@ -1,6 +1,7 @@
 const log4js = require('log4js');
 const logger = log4js.getLogger('DatabaseManager');
 const { logLevel } = require('../config.json');
+const { MetricsHelper } = require('./helpers/MetricsHelper');
 const { MetricsResponse } = require('./objects/MetricsResponse');
 const { MLEApplication } = require('./objects/MLEApplication');
 logger.level = logLevel;
@@ -35,11 +36,11 @@ class DatabaseManager {
 			return resolve(this.createTestApplication());
 			return reject('No application found');
 			if (this._status === 'init') {
-				logger.warn('Tried to get an application, DB manager not initialized');
-				return reject('DB error');
+				logger.warn('Tried to save an application, DB manager not initialized');
+				reject('DB manager not initialized');
 			} else if (this._status === 'failed') {
-				logger.warn('Tried to get an application, DB manager failed to initialize');
-				return reject('DB error');
+				logger.warn('Tried to save an application, DB manager failed to initialize');
+				reject('DB manager failed to initialize');
 			}
 
 			// Get the application from the database
@@ -110,13 +111,22 @@ class DatabaseManager {
 	 */
 	async fetchMetrics(startDate, endDate) {
 		return new Promise((resolve, reject) => {
+			return resolve(this.createDummyMetrics(startDate, endDate));
 			if (this._status === 'init') {
-				logger.warn('Tried to fetch metrics, DB manager not initialized');
-				reject('Database connection failed');
+				logger.warn('Tried to save an application, DB manager not initialized');
+				reject('DB manager not initialized');
 			} else if (this._status === 'failed') {
-				logger.warn('Tried to fetch metrics, DB manager failed to initialize');
-				reject('Database connection failed');
+				logger.warn('Tried to save an application, DB manager failed to initialize');
+				reject('DB manager failed to initialize');
 			}
+
+			// TODO: get the data
+			const data = null;
+
+			const response = new MetricsResponse(startDate, endDate);
+			const helper = new MetricsHelper(response, data);
+			helper.crunchNumbers();
+			return resolve(helper.getMetrics());
 		});
 	}
 
@@ -147,6 +157,26 @@ class DatabaseManager {
 		// application.setNewDiscord(false);
 
 		return application;
+	}
+
+	createDummyMetrics(startDate, endDate) {
+		const metrics = new MetricsResponse(startDate, endDate);
+		metrics.setApplicationCount(83);
+		const referralMap = new Map();
+		referralMap.set('Twitch', 13);
+		referralMap.set('Twitter', 8);
+		referralMap.set('Instagram', 3);
+		referralMap.set('Referred by a Friend', 42);
+		metrics.setReferralMap(referralMap);
+
+		const leagueMap = new Map();
+		leagueMap.set('Rocket League', 58);
+		leagueMap.set('Trackmania', 25);
+		leagueMap.set('Broadcasting/Commentating', 3);
+		leagueMap.set('Community Only', 8);
+		metrics.setLeagueMap(leagueMap);
+
+		return metrics;
 	}
 
 	parseDBResponse(application) {

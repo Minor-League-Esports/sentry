@@ -68,16 +68,15 @@ module.exports = {
 		} catch (error) {
 			discordLogger.logMessage('Failed to initialize DatabaseManager');
 			logger.error('Failed to initialize DatabaseManager');
-			interaction.editReply(
-				'An error occurred creating the application. Contact staff if this issue persists.'
-			);
+			interaction.editReply('An error fetching metrics. Contact staff if this issue persists.');
 			return;
 		}
 
-		const user = interaction.user;
 		dbManager
 			.fetchMetrics(parsedStartDate, parsedEndDate)
-			.then((metrics) => {})
+			.then((metrics) => {
+				interaction.editReply({ embeds: [metrics.toString()] });
+			})
 			.catch((error) => {
 				discordLogger.logMessage(`Failed to pull metrics! Reason: ${error}`);
 				interaction.reply(`Failed to pull metrics! Reason: ${error}`);
