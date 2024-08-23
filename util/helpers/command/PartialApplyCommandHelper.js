@@ -1,8 +1,9 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { ButtonComponent } = require('discord.js');
-const { ApplicationHelper } = require('./ApplicationHelper.js');
+const { buildActionRows } = require('../../utils.js');
+const { ApplyCommandHelper: ApplyCommandHelper } = require('./ApplyCommandHelper.js');
 
-class PartialApplicationHelper extends ApplicationHelper {
+class PartialApplyCommandHelper extends ApplyCommandHelper {
 	constructor(user) {
 		super(user);
 	}
@@ -24,7 +25,7 @@ class PartialApplicationHelper extends ApplicationHelper {
 	}
 
 	generateButtons() {
-		return super.buildActionRows(
+		return buildActionRows(
 			this.generateContinueButton(),
 			this.generateRestartButton(),
 			this.generateViewAppButton()
@@ -54,5 +55,5 @@ class PartialApplicationHelper extends ApplicationHelper {
 }
 
 module.exports = {
-	PartialApplicationHelper
+	PartialApplyCommandHelper
 };

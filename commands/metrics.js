@@ -1,13 +1,14 @@
 const log4js = require('log4js');
 const logger = log4js.getLogger('MetricsCommand');
-const { logLevel } = require('../config.json');
+const { logLevel, channels } = require('../config.json');
 logger.level = logLevel;
 
+const { DiscordLogger } = require('../util/DiscordLogger');
+const logChannel = channels['logChannelId'];
+
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
-const { DiscordLogger } = require('../util/DiscordLogger.js');
-const { channels } = require('../config.json');
 const { DatabaseManager } = require('../util/DatabaseManager');
-const { MLEApplication } = require('../util/objects/MLEApplication.js');
+const { MLEApplication } = require('../util/objects/MLEApplication');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -54,7 +55,7 @@ module.exports = {
 		await interaction.deferReply();
 		// Set up loggers
 		const client = interaction.client;
-		const discordLogger = new DiscordLogger(client, channels['logChannelId']);
+		const discordLogger = new DiscordLogger(client, logChannel);
 		try {
 			await discordLogger.init();
 		} catch (error) {

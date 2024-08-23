@@ -1,11 +1,12 @@
 const log4js = require('log4js');
-const logger = log4js.getLogger('ChatInputCommandEvent');
-const { logLevel } = require('../config.json');
+const logger = log4js.getLogger('CommandInteractionEvent');
+const { logLevel, channels } = require('../config.json');
 logger.level = logLevel;
 
-const { Events } = require('discord.js');
 const { DiscordLogger } = require('../util/DiscordLogger.js');
-const { logChannelId } = require('../config.json');
+const logChannel = channels['logChannelId'];
+
+const { Events } = require('discord.js');
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -23,7 +24,7 @@ module.exports = {
 		} catch (error) {
 			logger.error(error);
 			const client = interaction.client;
-			const discordLogger = new DiscordLogger(client, channels['logChannelId']);
+			const discordLogger = new DiscordLogger(client, logChannel);
 			try {
 				await discordLogger.init();
 			} catch (error) {

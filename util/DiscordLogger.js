@@ -81,10 +81,12 @@ class DiscordLogger {
 			return 'Logger failed to initialize';
 		}
 
-		if (message.length === 0) {
+		if (!message || message.length === 0) {
 			logger.warn('An empty log message was sent');
 			message = 'An empty log message was sent.';
 		}
+
+		message = message.toString();
 		const result = message.match(/.{1,2000}/s) || [];
 
 		result.forEach(async (newMessage) => {

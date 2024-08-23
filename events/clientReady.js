@@ -1,17 +1,18 @@
 const log4js = require('log4js');
 const logger = log4js.getLogger('ReadyEvent');
-const { logLevel } = require('../config.json');
+const { logLevel, channels } = require('../config.json');
 logger.level = logLevel;
 
-const { Events } = require('discord.js');
 const { DiscordLogger } = require('../util/DiscordLogger.js');
-const { channels } = require('../config.json');
+const logChannel = channels['logChannelId'];
+
+const { Events } = require('discord.js');
 
 module.exports = {
 	name: Events.ClientReady,
 	once: true,
 	async execute(client) {
-		const discordLogger = new DiscordLogger(client, channels['logChannelId']);
+		const discordLogger = new DiscordLogger(client, logChannel);
 		try {
 			await discordLogger.init();
 		} catch (error) {
