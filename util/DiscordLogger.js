@@ -90,23 +90,18 @@ class DiscordLogger {
 		const result = message.match(/.{1,2000}/s) || [];
 
 		result.forEach(async (newMessage) => {
-			await this._channel
-				.send(newMessage)
-				.then(() => {
-					logger.debug('Successfully logged a message');
-				})
-				.catch((error) => {
-					if (error.code === 50013) {
-						// Error code for missing permissions
-						logger.warn('No permission to message in log channel');
-					} else if (error.code === 50001) {
-						// Error code for missing access
-						logger.warn('No permission to view log channel');
-					} else {
-						logger.warn('Failed send log message, reason unknown');
-						logger.warn(error);
-					}
-				});
+			await this._channel.send(newMessage).catch((error) => {
+				if (error.code === 50013) {
+					// Error code for missing permissions
+					logger.warn('No permission to message in log channel');
+				} else if (error.code === 50001) {
+					// Error code for missing access
+					logger.warn('No permission to view log channel');
+				} else {
+					logger.warn('Failed send log message, reason unknown');
+					logger.warn(error);
+				}
+			});
 		});
 	}
 }

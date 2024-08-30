@@ -26,21 +26,9 @@ module.exports = {
 			logger.warn(`Failed to initialize DiscordLogger`);
 		}
 
-		const dbManager = new DatabaseManager(null, null, null, null);
-		try {
-			await dbManager.init();
-		} catch (error) {
-			discordLogger.logMessage('Failed to initialize DatabaseManager');
-			logger.error('Failed to initialize DatabaseManager');
-			interaction.editReply(
-				'An error occurred creating the application. Contact staff if this issue persists.'
-			);
-			return;
-		}
-
 		const user = interaction.user;
 
-		dbManager
+		applicationManager
 			.getApplication(user.id)
 			.then((application) => {
 				logger.debug(`Got an application for ${user} from DB. Status: ${application.getStatus()}`);
@@ -52,9 +40,10 @@ module.exports = {
 			})
 			.catch((error) => {
 				if (error === 'No application found') {
-					dbManager
+					applicationManager
 						.createNewApplication(user.id, user.displayName, user.displayAvatarURL())
 						.then((application) => {
+							applicationManager.saveApplication(user.id, application);
 							const helper = new ApplicationHelper(application);
 							user
 								.send(helper.generateStartApplicationMessage())
@@ -125,7 +114,5 @@ module.exports = {
 						});
 				}
 			});
-
-		dbManager.close();
 	}
 };

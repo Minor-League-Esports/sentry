@@ -7,6 +7,7 @@ const { DiscordLogger } = require('../util/DiscordLogger.js');
 const logChannel = channels['logChannelId'];
 
 const { Events } = require('discord.js');
+const { ApplicationManager } = require('../util/ApplicationManager');
 
 module.exports = {
 	name: Events.ClientReady,
@@ -21,5 +22,16 @@ module.exports = {
 
 		discordLogger.logMessage('Bot is ready');
 		logger.info(`Ready! Logged in as ${client.user.tag}`);
+
+		applicationManager
+			.init()
+			.then(() => {
+				discordLogger.logMessage('Application Manager initialized');
+			})
+			.catch((error) => {
+				logger.error(error);
+				discordLogger.logMessage('Application Manager failed to initialize!');
+			});
+		setInterval(applicationManager.writeApplications, 1000 * 60 * 5);
 	}
 };

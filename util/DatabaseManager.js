@@ -63,6 +63,13 @@ class DatabaseManager {
 	 * @returns {Promise<MLEApplication>} A promise to return the new application
 	 */
 	async createNewApplication(userId, userName, userAvatar) {
+		const application = new MLEApplication(userId, userName, userAvatar);
+		const query = 'INSERT INTO Applications (userID, useName, userAvatar, status) VALUES (?,?,?,?)';
+		const params = [userId, userName, userAvatar, 'init'];
+		// execute the query
+		application.setId(1);
+		return application;
+
 		return new Promise((resolve, reject) => {
 			if (this._status === 'init') {
 				logger.warn('Tried to save an application, DB manager not initialized');
@@ -152,9 +159,16 @@ class DatabaseManager {
 		application.setId(1);
 		application.setStatus('partial');
 		application.setStartTimestamp(1724002762000);
+		application.setAgree(true);
 		application.setAge(23);
-		// application.setTwitter('@anolivebranch');
-		// application.setNewDiscord(false);
+		application.setTwitter('@anolivebranch');
+		application.setNewDiscord(false);
+		application.setReferral('friend: TyTy');
+		application.setLeagues('rl, comm');
+		application.setWhyInterested('selkfjeslifj');
+		application.setWhyFit('slselfkj');
+		application.setWhatToxic('sehfosih');
+		application.setHowReact('selkjflske');
 
 		return application;
 	}

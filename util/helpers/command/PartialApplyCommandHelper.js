@@ -20,16 +20,12 @@ class PartialApplyCommandHelper extends ApplyCommandHelper {
 			.addFields({
 				name: 'Partial Application Found',
 				value:
-					'We found a partial application for you on file. Would you like to continue it, start over, or view the application?'
+					'We found a partial application for you on file. Would you like to view it or start over?'
 			});
 	}
 
 	generateButtons() {
-		return buildActionRows(
-			this.generateContinueButton(),
-			this.generateRestartButton(),
-			this.generateViewAppButton()
-		);
+		return buildActionRows(this.generateViewAppButton(), this.generateRestartButton());
 	}
 
 	generateContinueButton() {
