@@ -1,18 +1,23 @@
 const log4js = require('log4js');
 const logger = log4js.getLogger('DatabaseManager');
-const { logLevel } = require('../config.json');
+const { database, logLevel } = require('../config.json');
 const { MetricsHelper } = require('./helpers/MetricsHelper');
 const { MetricsResponse } = require('./objects/MetricsResponse');
 const { MLEApplication } = require('./objects/MLEApplication');
 logger.level = logLevel;
 
+const { Client } = require('pg');
+
 class DatabaseManager {
-	constructor(username, password, server, database) {
-		this._username = username;
-		this._password = password;
-		this._server = server;
-		this._database = database;
+	constructor() {
 		this._status = 'init';
+		this._client = new Client({
+			user: database['username'],
+			password: database['password'],
+			host: database['hostname'],
+			port: database['port'],
+			database: database['database']
+		});
 	}
 
 	/**
@@ -23,6 +28,7 @@ class DatabaseManager {
 	async init() {
 		logger.debug('Initialized the database connection');
 		// Sets status to 'success' on success and 'failed' on fail
+		await this._client.connect();
 	}
 
 	/**

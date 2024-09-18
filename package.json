@@ -3,7 +3,8 @@
 		"date-and-time": "^3.5.0",
 		"discord.js": "^14.15.3",
 		"https": "^1.0.0",
-		"log4js": "^6.9.1"
+		"log4js": "^6.9.1",
+		"pg": "^8.13.0"
 	},
 	"devDependencies": {
 		"eslint": "^9.4.0"

@@ -7,7 +7,7 @@ logger.level = logLevel;
 class ApplicationManager {
 	constructor() {
 		this._cachedApplications = new Map();
-		this._dbManager = new DatabaseManager(null, null, null, null);
+		this._dbManager = new DatabaseManager();
 	}
 
 	async init() {
