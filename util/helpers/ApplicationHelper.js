@@ -40,10 +40,24 @@ class ApplicationHelper {
 		logger.debug(nextStage);
 		if (nextStage['name'] === 'submitted') {
 			const appChannel = await interaction.client.channels.fetch(appChannelId);
+			const banManager = new BanManager();
+			const isBanned = await banManager.isUserBanned(
+				interaction.user.displayName,
+				interaction.user.id
+			);
 			const appEmbed = this.getApplication()
 				.toString()
 				.setTitle(`New application! ${this.getApplication().getUsername()}`)
 				.setThumbnail(this.getApplication().getUserAvatar());
+			if (isBanned) {
+				appEmbed
+					.addFields({
+						name: 'Banned!',
+						value:
+							'**Attention!** This user is on the ban list, only proceed if the ban is an error!'
+					})
+					.setColor('#ffff00');
+			}
 			const buttons = buildActionRows(
 				this.generateAcceptButton(),
 				this.generateRejectButton(),

@@ -1,5 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { ButtonComponent } = require('discord.js');
+const { EmbedBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { buildActionRows } = require('../../utils.js');
 const { ApplyCommandHelper: ApplyCommandHelper } = require('./ApplyCommandHelper.js');
 

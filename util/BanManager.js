@@ -1,16 +1,21 @@
+const log4js = require('log4js');
+const logger = log4js.getLogger('ApplyCommand');
+const { logLevel, channels } = require('../config.json');
+logger.level = logLevel;
+
+const { DiscordLogger } = require('./DiscordLogger');
+const logChannel = channels['logChannelId'];
+
 const https = require('https');
 const { banSpreadsheetId, banSheetName, googleAPIKey } = require('../config.json');
-const { DiscordLogger } = require('./DiscordLogger.js');
 
 class BanManager {
-	constructor(logChannel) {
-		this._logChannel = logChannel;
-	}
-
 	async isUserBanned(userName, userId) {
+		return true;
 		let isBanned = false;
 		await this.getAllBans()
 			.then(function (bans) {
+				logger.debug('Got bans');
 				const allBans = JSON.parse(bans)['values'];
 				allBans.forEach(function (ban) {
 					const bannedName = ban[0];
@@ -23,9 +28,8 @@ class BanManager {
 				});
 			})
 			.catch((error) => {
-				const logger = new DiscordLogger(this._logChannel);
-				logger.logMessage('Encountered an error fetching bans!');
-				logger.logMessage(`Error: \n\`\`\`\n${error}\n\`\`\``);
+				logger.error('Error getting bans!');
+				logger.error(error);
 			});
 
 		return isBanned;
@@ -57,8 +61,21 @@ class BanManager {
 		});
 	}
 
+	/**
+	 *
+	 * @param {String} userName
+	 * @param {String} userId
+	 * @param {Number} age
+	 */
 	async addUnderageBan(userName, userId, age) {}
 
+	/**
+	 *
+	 * @param {String} userName
+	 * @param {String} userId
+	 * @param {Date} length
+	 * @param {String} reason
+	 */
 	async addOtherBan(userName, userId, length, reason) {}
 }
 

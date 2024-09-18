@@ -4,6 +4,7 @@ const { logLevel } = require('../config.json');
 logger.level = logLevel;
 
 const { ActionRowBuilder, ButtonComponent } = require('discord.js');
+const date = require('date-and-time');
 
 /**
  * Builds action rows from a list of buttons
@@ -54,8 +55,28 @@ function mapToString(map) {
 	return ret;
 }
 
+function parseTimeInput(input) {
+	input = input.toLowerCase();
+	const now = new Date();
+
+	if (input === 'none') {
+		return now;
+	} else if (input === 'permanent') {
+		return null; // or some other representation of "permanent"
+	} else {
+		const match = input.match(/(\d+)\s(month|months)/);
+		if (match) {
+			const months = parseInt(match[1], 10);
+			return date.addMonths(now, months);
+		} else {
+			throw new Error('Invalid input format');
+		}
+	}
+}
+
 module.exports = {
 	buildActionRows,
 	convertDate,
-	mapToString
+	mapToString,
+	parseTimeInput
 };

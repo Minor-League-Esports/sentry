@@ -32,6 +32,6 @@ module.exports = {
 				logger.error(error);
 				discordLogger.logMessage('Application Manager failed to initialize!');
 			});
-		setInterval(applicationManager.writeApplications, 1000 * 60 * 5);
+		// setInterval(applicationManager.writeApplications, 1000 * 60 * 5);
 	}
 };

@@ -9,6 +9,7 @@ const logChannel = channels['logChannelId'];
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const { DatabaseManager } = require('../util/DatabaseManager');
 const { MLEApplication } = require('../util/objects/MLEApplication');
+const { MetricsHelper } = require('../util/helpers/MetricsHelper');
 
 module.exports = {
 	data: new SlashCommandBuilder()

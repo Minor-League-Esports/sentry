@@ -10,7 +10,10 @@ const { SlashCommandBuilder } = require('discord.js');
 const { DatabaseManager } = require('../util/DatabaseManager');
 const { MLEApplication } = require('../util/objects/MLEApplication');
 const { PartialApplyCommandHelper } = require('../util/helpers/command/PartialApplyCommandHelper');
+const { PendingApplyCommandHelper } = require('../util/helpers/command/PendingApplyCommandHelper');
 const { ApplicationHelper } = require('../util/helpers/ApplicationHelper');
+const { BanManager } = require('../util/BanManager');
+const { BannedApplyCommandHelper } = require('../util/helpers/command/BannedApplyCommandHelper');
 
 module.exports = {
 	data: new SlashCommandBuilder().setName('apply').setDescription('Get an MLE application'),
@@ -28,6 +31,15 @@ module.exports = {
 
 		const user = interaction.user;
 
+		const banManager = new BanManager();
+		const isBanned = await banManager.isUserBanned(user.displayName, user.id);
+
+		if (isBanned) {
+			const helper = new BannedApplyCommandHelper(user);
+			interaction.editReply(helper.generateResponse());
+			return;
+		}
+
 		applicationManager
 			.getApplication(user.id)
 			.then((application) => {
@@ -36,6 +48,10 @@ module.exports = {
 					const helper = new PartialApplyCommandHelper(user);
 					interaction.editReply(helper.generateResponse());
 				} else if (application.getStatus() === 'rejected') {
+				} else if (application.getStatus() === 'pending') {
+					const helper = new PendingApplyCommandHelper(user);
+					interaction.editReply(helper.generateResponse());
+				} else if (application.getStatus() === 'accepted') {
 				}
 			})
 			.catch((error) => {

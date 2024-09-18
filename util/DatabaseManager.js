@@ -157,7 +157,7 @@ class DatabaseManager {
 		);
 
 		application.setId(1);
-		application.setStatus('partial');
+		application.setStatus('pending');
 		application.setStartTimestamp(1724002762000);
 		application.setAgree(true);
 		application.setAge(23);
