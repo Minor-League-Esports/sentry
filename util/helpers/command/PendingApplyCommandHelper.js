@@ -10,7 +10,7 @@ class PendingApplyCommandHelper extends ApplyCommandHelper {
 	generateEmbed() {
 		return new EmbedBuilder()
 			.setColor('#ffff00')
-			.setTitle(`Partial Application: ${this._userName}`)
+			.setTitle(`Pending Application: ${this._userName}`)
 			.setFooter({ text: `ID: ${this._userId}` })
 			.setTimestamp()
 			.setThumbnail(
@@ -27,13 +27,6 @@ class PendingApplyCommandHelper extends ApplyCommandHelper {
 		return buildActionRows(this.generateViewAppButton(), this.generateRestartButton());
 	}
 
-	generateContinueButton() {
-		return new ButtonBuilder()
-			.setCustomId('applicationContinueButton')
-			.setLabel('Continue')
-			.setStyle(ButtonStyle.Success);
-	}
-
 	generateRestartButton() {
 		return new ButtonBuilder()
 			.setCustomId('applicationRestartButton')
@@ -43,7 +36,7 @@ class PendingApplyCommandHelper extends ApplyCommandHelper {
 
 	generateViewAppButton() {
 		return new ButtonBuilder()
-			.setCustomId('applicationViewButton')
+			.setCustomId('applicationViewPendingButton')
 			.setLabel('View Application')
 			.setStyle(ButtonStyle.Primary);
 	}

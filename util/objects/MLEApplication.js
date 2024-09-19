@@ -260,7 +260,7 @@ class MLEApplication {
 	 * @returns {int}
 	 */
 	getSubmitTimestamp() {
-		return this._submitTimestamp ?? -1;
+		return this._submitTimestamp;
 	}
 
 	/**
@@ -276,7 +276,7 @@ class MLEApplication {
 	 * @returns {int}
 	 */
 	getReviewTimestamp() {
-		return this._reviewTimestamp ?? -1;
+		return this._reviewTimestamp;
 	}
 
 	/**
@@ -292,7 +292,7 @@ class MLEApplication {
 	 * @returns {int}
 	 */
 	getCompleteTimestamp() {
-		return this._completeTimestamp ?? -1;
+		return this._completeTimestamp;
 	}
 
 	/**

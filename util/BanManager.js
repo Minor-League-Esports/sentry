@@ -11,7 +11,6 @@ const { banSpreadsheetId, banSheetName, googleAPIKey } = require('../config.json
 
 class BanManager {
 	async isUserBanned(userName, userId) {
-		return true;
 		let isBanned = false;
 		await this.getAllBans()
 			.then(function (bans) {
@@ -20,7 +19,6 @@ class BanManager {
 				allBans.forEach(function (ban) {
 					const bannedName = ban[0];
 					const bannedId = ban[1];
-					// console.log(`Ban! Name: ${bannedName} ID: ${bannedId}`);
 					if (userName === bannedName || userId === bannedId) {
 						isBanned = true;
 						return;

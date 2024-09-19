@@ -90,6 +90,7 @@ class ApplicationHelper {
 		const interactionId = interaction.customId;
 		if (interactionId === 'applicationAgreeButton') {
 			this.getApplication().setAgree(true);
+			this.getApplication().setStatus('partial');
 		} else if (interactionId === 'infoGatherModal') {
 			const ageString = interaction.fields.getTextInputValue('userAge');
 			const age = parseInt(ageString);
@@ -159,7 +160,6 @@ class ApplicationHelper {
 	 * @returns
 	 */
 	getNextStage() {
-		logger.debug(`Agree: ${this.getApplication().getAgree()}`);
 		if (!this.getApplication().getAgree()) {
 			return {
 				name: 'startApp',
@@ -310,7 +310,6 @@ class ApplicationHelper {
 		}
 
 		if (this.getApplication().getStatus() === 'submitted') {
-			logger.debug(this.generateSubmittedEmbed());
 			return {
 				name: 'submitted',
 				type: 'embed',

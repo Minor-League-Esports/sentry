@@ -44,7 +44,7 @@ module.exports = {
 			.getApplication(user.id)
 			.then((application) => {
 				logger.debug(`Got an application for ${user} from DB. Status: ${application.getStatus()}`);
-				if (application.getStatus() === 'partial') {
+				if (application.getStatus() === 'partial' || application.getStatus() === 'init') {
 					const helper = new PartialApplyCommandHelper(user);
 					interaction.editReply(helper.generateResponse());
 				} else if (application.getStatus() === 'rejected') {

@@ -11,18 +11,16 @@ const orientationRole = roles['orientationRole'];
 const {
 	Events,
 	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
 	EmbedBuilder,
 	TextInputStyle,
 	TextInputBuilder,
 	ModalBuilder
 } = require('discord.js');
-const { DatabaseManager } = require('../util/DatabaseManager');
 const { PartialApplyCommandHelper } = require('../util/helpers/command/PartialApplyCommandHelper');
 const { MLEApplication } = require('../util/objects/MLEApplication');
 const { buildActionRows } = require('../util/utils');
 const { ApplicationHelper } = require('../util/helpers/ApplicationHelper');
+const { PendingApplyCommandHelper } = require('../util/helpers/command/PendingApplyCommandHelper');
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -79,6 +77,41 @@ module.exports = {
 								});
 								discordLogger
 									.logMessage('Encountered an error viewing a partial application!')
+									.then(() => {
+										discordLogger.logMessage(error);
+									});
+							}
+						});
+				} else if (buttonId === 'applicationViewPendingButton') {
+					logger.trace('Clicked view application button');
+					const helper = new PendingApplyCommandHelper(user);
+					user
+						.send({
+							embeds: [application.toString()],
+							components: buildActionRows(helper.generateRestartButton())
+						})
+						.then(async () => {
+							interaction.reply({
+								content: 'Your pending application has been sent. Please check your DMs.',
+								ephemeral: true
+							});
+						})
+						.catch((error) => {
+							if (error.code === 50007) {
+								interaction.reply({
+									content:
+										'Your application could not be sent. Check that you have DMs enabled and the bot is not blocked.',
+									ephemeral: true
+								});
+							} else {
+								logger.error(error);
+								interaction.reply({
+									content:
+										'Your application could not be sent. Contact staff if this issue persists.',
+									ephemeral: true
+								});
+								discordLogger
+									.logMessage('Encountered an error viewing a pending application!')
 									.then(() => {
 										discordLogger.logMessage(error);
 									});
