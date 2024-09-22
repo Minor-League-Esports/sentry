@@ -29,8 +29,6 @@ module.exports = {
 	async execute(interaction) {
 		if (!interaction.isButton()) return;
 
-		logger.trace('Button clicked');
-
 		const client = interaction.client;
 		const discordLogger = new DiscordLogger(client, logChannel);
 		try {
@@ -47,7 +45,6 @@ module.exports = {
 			.then(async (application) => {
 				logger.debug(`Got an application for ${user}. Status: ${application.getStatus()}`);
 				if (buttonId === 'applicationViewButton') {
-					logger.trace('Clicked view application button');
 					const helper = new PartialApplyCommandHelper(user);
 					user
 						.send({
@@ -85,7 +82,6 @@ module.exports = {
 							}
 						});
 				} else if (buttonId === 'applicationViewSubmittedButton') {
-					logger.trace('Clicked view application button');
 					const helper = new SubmittedApplyCommandHelper(user);
 					user
 						.send({
@@ -348,6 +344,7 @@ module.exports = {
 					modal.addComponents(actionRowOne, actionRowTwo);
 					interaction.showModal(modal);
 				} else if (buttonId === 'applicationReviewButton') {
+					const userDetails = `${application.getUsername()} (${application.getUserId()})`;
 					// Build modal
 					const modal = new ModalBuilder()
 						.setCustomId('reviewReasonModal')
@@ -358,11 +355,18 @@ module.exports = {
 						.setLabel('Why are you requesting an application review?')
 						.setStyle(TextInputStyle.Short);
 
+					const userInput = new TextInputBuilder()
+						.setCustomId('user')
+						.setLabel('User (DO NOT EDIT)')
+						.setStyle(TextInputStyle.Short)
+						.setValue(userDetails);
+
 					// Create action rows
 					const actionRowOne = new ActionRowBuilder().addComponents(textInput);
+					const actionRowTwo = new ActionRowBuilder().addComponents(userInput);
 
 					// Add action rows to modal
-					modal.addComponents(actionRowOne);
+					modal.addComponents(actionRowOne, actionRowTwo);
 					interaction.showModal(modal);
 				} else {
 					const helper = new ApplicationHelper(application);

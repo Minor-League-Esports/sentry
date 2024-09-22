@@ -32,7 +32,7 @@ class DatabaseManager {
 		return this._client
 			.connect()
 			.then(async () => {
-				await this._client.query('DROP TABLE Applications');
+				// await this._client.query('DROP TABLE Applications');
 				this._client
 					.query(
 						`

@@ -9,7 +9,7 @@ class AcceptedApplyCommandHelper extends ApplyCommandHelper {
 
 	generateEmbed() {
 		return new EmbedBuilder()
-			.setColor('#ff0000')
+			.setColor('#00ff00')
 			.setTitle(`Accepted Application: ${this._userName}`)
 			.setFooter({ text: `ID: ${this._userId}` })
 			.setTimestamp()

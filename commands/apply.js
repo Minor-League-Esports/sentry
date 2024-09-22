@@ -40,13 +40,13 @@ module.exports = {
 			logger.warn(`Failed to initialize DiscordLogger`);
 		}
 
+		const user = interaction.user;
+
 		if (interaction.member.roles.cache.has(orientationRole)) {
-			const helper = new OrientationApplyCommandHelper();
+			const helper = new OrientationApplyCommandHelper(user);
 			interaction.editReply({ embeds: [helper.generateEmbed()] });
 			return;
 		}
-
-		const user = interaction.user;
 
 		const banManager = new BanManager();
 		const isBanned = await banManager.isUserBanned(user.displayName, user.id);

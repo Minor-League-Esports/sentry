@@ -1,11 +1,12 @@
 const log4js = require('log4js');
 const logger = log4js.getLogger('ModalSubmitEvent');
-const { logLevel, channels } = require('../config.json');
+const { logLevel, channels, roles } = require('../config.json');
 logger.level = logLevel;
 
 const { DiscordLogger } = require('../util/DiscordLogger');
 const logChannel = channels['logChannelId'];
 const rejectChannelId = channels['rejectedAppsChannelId'];
+const admissionsRole = roles['admissionsRole'];
 
 const { Events, EmbedBuilder } = require('discord.js');
 const { ApplicationHelper } = require('../util/helpers/ApplicationHelper');
@@ -29,11 +30,18 @@ module.exports = {
 
 		if (interaction.customId === 'reviewReasonModal') {
 			const reason = interaction.fields.getTextInputValue('reason');
-			interaction.reply(
-				`@Admissions new review request!\n` +
-					`Reason: ${reason}\n` +
-					`Requestor: ${user.displayName}`
-			);
+			const userDetails = interaction.fields.getTextInputValue('user');
+			interaction
+				.reply({
+					content:
+						`<@&${admissionsRole}> new review request!\n` +
+						`Reason: ${reason}\n` +
+						`Requestor: ${user.displayName}`,
+					fetchReply: true
+				})
+				.then((message) => {
+					message.startThread({ name: `Application Review Request: ${userDetails}` });
+				});
 			return;
 		} else if (interaction.customId === 'rejectReasonModal') {
 			const reason = interaction.fields.getTextInputValue('reason');
@@ -92,10 +100,20 @@ module.exports = {
 						const rejectChannel = await client.channels.fetch(rejectChannelId);
 						const rejectedApplicationEmbed = EmbedBuilder.from(applicationEmbed);
 						rejectedApplicationEmbed
-							.addFields({
-								name: 'Reviewer',
-								value: interaction.user.displayName
-							})
+							.addFields(
+								{
+									name: 'Reviewer',
+									value: interaction.user.displayName
+								},
+								{
+									name: 'Reason',
+									value: reason
+								},
+								{
+									name: 'Time',
+									value: time
+								}
+							)
 							.setTitle(`Application Rejected: ${userName}`)
 							.setColor('#ff0000');
 						rejectChannel.send({ embeds: [rejectedApplicationEmbed] });
