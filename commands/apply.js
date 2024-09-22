@@ -1,13 +1,13 @@
 const log4js = require('log4js');
 const logger = log4js.getLogger('ApplyCommand');
-const { logLevel, channels } = require('../config.json');
+const { logLevel, channels, roles } = require('../config.json');
 logger.level = logLevel;
 
 const { DiscordLogger } = require('../util/DiscordLogger');
 const logChannel = channels['logChannelId'];
+const orientationRole = roles['orientationRole'];
 
 const { SlashCommandBuilder } = require('discord.js');
-const { DatabaseManager } = require('../util/DatabaseManager');
 const { MLEApplication } = require('../util/objects/MLEApplication');
 const { PartialApplyCommandHelper } = require('../util/helpers/command/PartialApplyCommandHelper');
 const {
@@ -19,6 +19,12 @@ const { BannedApplyCommandHelper } = require('../util/helpers/command/BannedAppl
 const {
 	RejectedApplyCommandHelper
 } = require('../util/helpers/command/RejectedApplyCommandHelper');
+const {
+	AcceptedApplyCommandHelper
+} = require('../util/helpers/command/AcceptedApplyCommandHelper');
+const {
+	OrientationApplyCommandHelper
+} = require('../util/helpers/command/OrientationApplyCommandHelper');
 
 module.exports = {
 	data: new SlashCommandBuilder().setName('apply').setDescription('Get an MLE application'),
@@ -32,6 +38,12 @@ module.exports = {
 			await discordLogger.init();
 		} catch (error) {
 			logger.warn(`Failed to initialize DiscordLogger`);
+		}
+
+		if (interaction.member.roles.cache.has(orientationRole)) {
+			const helper = new OrientationApplyCommandHelper();
+			interaction.editReply({ embeds: [helper.generateEmbed()] });
+			return;
 		}
 
 		const user = interaction.user;
@@ -62,6 +74,8 @@ module.exports = {
 					application.getStatus() === 'accepted' ||
 					application.getStatus() === 'complete'
 				) {
+					const helper = new AcceptedApplyCommandHelper(user);
+					interaction.editReply(helper.generateResponse());
 				}
 			})
 			.catch((error) => {
