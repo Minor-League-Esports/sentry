@@ -51,8 +51,8 @@ module.exports = {
 						logger.debug(
 							`Got an application for ${user} from DB. Status: ${application.getStatus()}`
 						);
-						if (application.getStatus() !== 'pending') {
-							interaction.reply(`Error! User application is not in "pending" status`);
+						if (application.getStatus() !== 'submitted') {
+							interaction.reply(`Error! User application is not in "submitted" status`);
 							return;
 						}
 
@@ -101,6 +101,8 @@ module.exports = {
 						rejectChannel.send({ embeds: [rejectedApplicationEmbed] });
 
 						application.setStatus('rejected');
+						application.setReviewTimestamp(new Date());
+						await applicationManager.saveApplication(application.getUserId(), application);
 
 						await interaction.message.delete();
 						await interaction.reply({

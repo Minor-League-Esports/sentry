@@ -8,6 +8,8 @@ logger.level = logLevel;
 
 const { Client } = require('pg');
 
+const { escape } = require('./utils');
+
 class DatabaseManager {
 	constructor() {
 		this._status = 'init';
@@ -53,7 +55,8 @@ class DatabaseManager {
 						startTimestamp TIMESTAMPTZ NOT NULL,
 						submitTimestamp TIMESTAMPTZ,
 						reviewTimestamp TIMESTAMPTZ,
-						completeTimestamp TIMESTAMPTZ
+						completeTimestamp TIMESTAMPTZ,
+						flags VARCHAR(255)
 					)
 					`
 					)
@@ -66,11 +69,12 @@ class DatabaseManager {
 							LIMIT 1
 							`);
 						await this._client.query(`
-							PREPARE create_new_application (bigint, text, text, text, text) AS
-							INSERT INTO Applications (startTimestamp, userID, userName, userAvatar, status) VALUES (to_timestamp($1/1000.0),$2,$3,$4,$5)
+							PREPARE create_new_application (bigint, text, text, text, text, date, date, date) AS
+							INSERT INTO Applications (startTimestamp, userID, userName, userAvatar, status, submitTimestamp, reviewTimestamp, completeTimestamp) 
+							VALUES (to_timestamp($1/1000.0),$2,$3,$4,$5,$6,$7,$8)
 							`);
 						await this._client.query(`
-							PREPARE save_application (int, text, int, text, text, text, text, text, text, text, text, date, date, date, boolean) AS
+							PREPARE save_application (int, text, int, text, text, text, text, text, text, text, text, date, date, date, boolean, text) AS
 							UPDATE Applications SET 
 							status = $2, 
 							age = $3, 
@@ -85,7 +89,8 @@ class DatabaseManager {
 							submitTimestamp = $12, 
 							reviewTimestamp = $13, 
 							completeTimestamp = $14,
-							agree = $15
+							agree = $15,
+							flags = $16
 							WHERE appID = $1
 							`);
 						this._status = 'success';
@@ -94,6 +99,7 @@ class DatabaseManager {
 					.catch((error) => {
 						logger.error('Failed to create table!');
 						logger.error(error);
+						this._status = 'failed';
 					});
 			})
 			.catch((error) => {
@@ -135,7 +141,7 @@ class DatabaseManager {
 				.catch((error) => {
 					logger.error('Error getting application!');
 					logger.error(error);
-					return reject('No application found');
+					return reject('Error getting application');
 				});
 		});
 	}
@@ -158,25 +164,28 @@ class DatabaseManager {
 			}
 
 			const date = Date.now();
-			const query = `EXECUTE create_new_application(${date},'${userId}','${userName}','${userAvatar}','init')`;
-
+			const zeroDate = new Date(0).toISOString();
+			const query = `EXECUTE create_new_application(${date},'${userId}','${userName}','${userAvatar}','init','${zeroDate}','${zeroDate}','${zeroDate}')`;
+			logger.debug(query);
 			this._client
 				.query(query)
 				.then(() => {
+					logger.debug('Created application');
 					this.getApplication(userId)
 						.then((application) => {
+							logger.debug('Got created application');
 							return resolve(application);
 						})
 						.catch((error) => {
 							logger.error('Error fetching created application!');
 							logger.error(error);
-							return reject();
+							return reject(error);
 						});
 				})
 				.catch((error) => {
 					logger.error('Error creating application!');
 					logger.error(error);
-					return reject();
+					return reject(error);
 				});
 		});
 	}
@@ -184,7 +193,7 @@ class DatabaseManager {
 	/**
 	 * Saves an application to the database. Creates a new one if it doesn't exist, updates it otherwise
 	 * @param {MLEApplication} application The application to save
-	 * @returns {Promise<boolean>} A promise of if the application was saved
+	 * @returns {Promise} A promise to save the application
 	 */
 	async saveApplication(application) {
 		return new Promise((resolve, reject) => {
@@ -198,20 +207,21 @@ class DatabaseManager {
 
 			const query = `EXECUTE save_application(
 			${application.getId()},
-			'${application.getStatus()}',
+			'${escape(application.getStatus())}',
 			${application.getAge()},
-			'${application.getTwitter()}',
+			'${escape(application.getTwitter())}',
 			'${application.getNewDiscord()}',
-			'${application.getReferral()}',
-			'${application.getLeagues()}',
-			'${application.getWhyInterested()}',
-			'${application.getWhyFit()}',
-			'${application.getWhatToxic()}',
-			'${application.getHowReact()}',
-			${application.getSubmitTimestamp()},
-			${application.getReviewTimestamp()},
-			${application.getCompleteTimestamp()},
-			${application.getAgree()}
+			'${escape(application.getReferral())}',
+			'${escape(application.getLeagues())}',
+			'${escape(application.getWhyInterested())}',
+			'${escape(application.getWhyFit())}',
+			'${escape(application.getWhatToxic())}',
+			'${escape(application.getHowReact())}',
+			'${application.getSubmitTimestamp()}',
+			'${application.getReviewTimestamp()}',
+			'${application.getCompleteTimestamp()}',
+			${application.getAgree()},
+			'${application.getFlags()}'
 			)`;
 
 			logger.debug(query);
@@ -224,7 +234,7 @@ class DatabaseManager {
 				.catch((error) => {
 					logger.error('Error saving application!');
 					logger.error(error);
-					return reject();
+					return reject(error);
 				});
 		});
 	}
@@ -256,34 +266,6 @@ class DatabaseManager {
 		});
 	}
 
-	/**
-	 * Creates a tester application
-	 * @return {MLEApplication} The application
-	 */
-	createTestApplication() {
-		const application = new MLEApplication(
-			'222809044103069696',
-			'AnOliveBranch',
-			'https://cdn.discordapp.com/avatars/222809044103069696/6899804950721a373752aabe8478c177.webp'
-		);
-
-		application.setId(1);
-		application.setStatus('pending');
-		application.setStartTimestamp(1724002762000);
-		application.setAgree(true);
-		application.setAge(23);
-		application.setTwitter('@anolivebranch');
-		application.setNewDiscord(false);
-		application.setReferral('friend: TyTy');
-		application.setLeagues('rl, comm');
-		application.setWhyInterested('selkfjeslifj');
-		application.setWhyFit('slselfkj');
-		application.setWhatToxic('sehfosih');
-		application.setHowReact('selkjflske');
-
-		return application;
-	}
-
 	createDummyMetrics(startDate, endDate) {
 		const metrics = new MetricsResponse(startDate, endDate);
 		metrics.setApplicationCount(83);
@@ -311,6 +293,7 @@ class DatabaseManager {
 	 */
 	parseDBResponse(result) {
 		const rows = result.rows;
+		logger.debug('Database response');
 		logger.debug(rows);
 
 		if (rows.length === 0) {
@@ -340,6 +323,7 @@ class DatabaseManager {
 		application.setSubmitTimestamp(appRow['submittimestamp']);
 		application.setReviewTimestamp(appRow['reviewtimestamp']);
 		application.setCompleteTimestamp(appRow['completetimestamp']);
+		application.setFlags(appRow['flags']);
 
 		return application;
 	}

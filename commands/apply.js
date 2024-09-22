@@ -10,10 +10,15 @@ const { SlashCommandBuilder } = require('discord.js');
 const { DatabaseManager } = require('../util/DatabaseManager');
 const { MLEApplication } = require('../util/objects/MLEApplication');
 const { PartialApplyCommandHelper } = require('../util/helpers/command/PartialApplyCommandHelper');
-const { PendingApplyCommandHelper } = require('../util/helpers/command/PendingApplyCommandHelper');
+const {
+	SubmittedApplyCommandHelper
+} = require('../util/helpers/command/SubmittedApplyCommandHelper');
 const { ApplicationHelper } = require('../util/helpers/ApplicationHelper');
 const { BanManager } = require('../util/BanManager');
 const { BannedApplyCommandHelper } = require('../util/helpers/command/BannedApplyCommandHelper');
+const {
+	RejectedApplyCommandHelper
+} = require('../util/helpers/command/RejectedApplyCommandHelper');
 
 module.exports = {
 	data: new SlashCommandBuilder().setName('apply').setDescription('Get an MLE application'),
@@ -48,10 +53,15 @@ module.exports = {
 					const helper = new PartialApplyCommandHelper(user);
 					interaction.editReply(helper.generateResponse());
 				} else if (application.getStatus() === 'rejected') {
-				} else if (application.getStatus() === 'pending') {
-					const helper = new PendingApplyCommandHelper(user);
+					const helper = new RejectedApplyCommandHelper(user);
 					interaction.editReply(helper.generateResponse());
-				} else if (application.getStatus() === 'accepted') {
+				} else if (application.getStatus() === 'submitted') {
+					const helper = new SubmittedApplyCommandHelper(user);
+					interaction.editReply(helper.generateResponse());
+				} else if (
+					application.getStatus() === 'accepted' ||
+					application.getStatus() === 'complete'
+				) {
 				}
 			})
 			.catch((error) => {

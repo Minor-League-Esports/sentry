@@ -58,6 +58,15 @@ class ApplicationHelper {
 					})
 					.setColor('#ffff00');
 			}
+			if (this._application.getFlags() === 'rejected') {
+				appEmbed
+					.addFields({
+						name: 'Rejected!',
+						value:
+							"**Attention!** This user's last application was rejected, only proceed if it has been resolved!"
+					})
+					.setColor('#ffff00');
+			}
 			const buttons = buildActionRows(
 				this.generateAcceptButton(),
 				this.generateRejectButton(),
@@ -143,7 +152,7 @@ class ApplicationHelper {
 			this.getApplication().setHowReact(response);
 		} else if (interactionId === 'applicationYesButton') {
 			this.getApplication().setStatus('submitted');
-			this.getApplication().setSubmitTimestamp(Date.now());
+			this.getApplication().setSubmitTimestamp(new Date());
 		} else if (interactionId === 'applicationNoButton') {
 			this._application = new MLEApplication(
 				this.getApplication().getUserId(),
@@ -330,7 +339,7 @@ class ApplicationHelper {
 			.setColor('#00ff00')
 			.setTitle(`MLE Application: ${this.getApplication().getUsername()}`)
 			.setFooter({ text: `ID: ${this.getApplication().getUserId()}` })
-			.setTimestamp(this.getApplication().getStartTimestamp())
+			.setTimestamp()
 			.setThumbnail(
 				'https://cdn.discordapp.com/emojis/1270034202548768868.webp?size=128&quality=lossless'
 			)

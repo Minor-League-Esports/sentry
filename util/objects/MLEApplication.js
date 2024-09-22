@@ -233,7 +233,7 @@ class MLEApplication {
 
 	/**
 	 *
-	 * @param {int} timestamp
+	 * @param {String} timestamp
 	 */
 	setStartTimestamp(timestamp) {
 		this._startTimestamp = timestamp;
@@ -241,15 +241,15 @@ class MLEApplication {
 
 	/**
 	 *
-	 * @returns {int}
+	 * @returns {String}
 	 */
 	getStartTimestamp() {
-		return this._startTimestamp;
+		return this._startTimestamp.toISOString();
 	}
 
 	/**
 	 *
-	 * @param {int} timestamp
+	 * @param {String} timestamp
 	 */
 	setSubmitTimestamp(timestamp) {
 		this._submitTimestamp = timestamp;
@@ -257,15 +257,15 @@ class MLEApplication {
 
 	/**
 	 *
-	 * @returns {int}
+	 * @returns {String}
 	 */
 	getSubmitTimestamp() {
-		return this._submitTimestamp;
+		return this._submitTimestamp.toISOString();
 	}
 
 	/**
 	 *
-	 * @param {int} timestamp
+	 * @param {String} timestamp
 	 */
 	setReviewTimestamp(timestamp) {
 		this._reviewTimestamp = timestamp;
@@ -273,15 +273,15 @@ class MLEApplication {
 
 	/**
 	 *
-	 * @returns {int}
+	 * @returns {String}
 	 */
 	getReviewTimestamp() {
-		return this._reviewTimestamp;
+		return this._reviewTimestamp.toISOString();
 	}
 
 	/**
 	 *
-	 * @param {int} timestamp
+	 * @param {String} timestamp
 	 */
 	setCompleteTimestamp(timestamp) {
 		this._completeTimestamp = timestamp;
@@ -289,10 +289,26 @@ class MLEApplication {
 
 	/**
 	 *
-	 * @returns {int}
+	 * @returns {String}
 	 */
 	getCompleteTimestamp() {
-		return this._completeTimestamp;
+		return this._completeTimestamp.toISOString();
+	}
+
+	/**
+	 *
+	 * @param {String} flags
+	 */
+	setFlags(flags) {
+		this._flags = flags;
+	}
+
+	/**
+	 *
+	 * @returns {String}
+	 */
+	getFlags() {
+		return this._flags;
 	}
 
 	/**
@@ -304,7 +320,7 @@ class MLEApplication {
 			.setColor('#00ff00')
 			.setTitle(`MLE Application: ${this.getUsername()}`)
 			.setFooter({ text: `ID: ${this.getUserId()}` })
-			.setTimestamp(this.getStartTimestamp())
+			.setTimestamp()
 			.setThumbnail(
 				'https://cdn.discordapp.com/emojis/1270034202548768868.webp?size=128&quality=lossless'
 			)

@@ -20,7 +20,9 @@ const { PartialApplyCommandHelper } = require('../util/helpers/command/PartialAp
 const { MLEApplication } = require('../util/objects/MLEApplication');
 const { buildActionRows } = require('../util/utils');
 const { ApplicationHelper } = require('../util/helpers/ApplicationHelper');
-const { PendingApplyCommandHelper } = require('../util/helpers/command/PendingApplyCommandHelper');
+const {
+	SubmittedApplyCommandHelper
+} = require('../util/helpers/command/SubmittedApplyCommandHelper');
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -82,9 +84,9 @@ module.exports = {
 									});
 							}
 						});
-				} else if (buttonId === 'applicationViewPendingButton') {
+				} else if (buttonId === 'applicationViewSubmittedButton') {
 					logger.trace('Clicked view application button');
-					const helper = new PendingApplyCommandHelper(user);
+					const helper = new SubmittedApplyCommandHelper(user);
 					user
 						.send({
 							embeds: [application.toString()],
@@ -92,7 +94,7 @@ module.exports = {
 						})
 						.then(async () => {
 							interaction.reply({
-								content: 'Your pending application has been sent. Please check your DMs.',
+								content: 'Your submitted application has been sent. Please check your DMs.',
 								ephemeral: true
 							});
 						})
@@ -111,7 +113,7 @@ module.exports = {
 									ephemeral: true
 								});
 								discordLogger
-									.logMessage('Encountered an error viewing a pending application!')
+									.logMessage('Encountered an error viewing a submitted application!')
 									.then(() => {
 										discordLogger.logMessage(error);
 									});
@@ -161,6 +163,73 @@ module.exports = {
 								ephemeral: true
 							});
 						});
+				} else if (buttonId === 'applyRejectedButton') {
+					applicationManager
+						.getApplication(user.id)
+						.then((oldApplication) => {
+							if (oldApplication.getStatus() !== 'rejected') {
+								interaction.reply({
+									content:
+										'Previous application not in "rejected" state! Contact staff if this issue persists.',
+									ephemeral: true
+								});
+								return;
+							}
+							applicationManager
+								.createNewApplication(user.id, user.displayName, user.displayAvatarURL())
+								.then((application) => {
+									application.setFlags('rejected');
+									applicationManager.saveApplication(user.id, application);
+									const helper = new ApplicationHelper(application);
+									user
+										.send(helper.generateStartApplicationMessage())
+										.then(() => {
+											interaction.reply({
+												content: 'A new application has been sent. Please check your DMs.',
+												ephemeral: true
+											});
+										})
+										.catch((error) => {
+											if (error.code === 50007) {
+												interaction.reply({
+													content:
+														'Your application could not be sent. Check that you have DMs enabled and the bot is not blocked.',
+													ephemeral: true
+												});
+											} else {
+												logger.error(error);
+												interaction.reply({
+													content:
+														'Your application could not be sent. Contact staff if this issue persists.',
+													ephemeral: true
+												});
+												discordLogger
+													.logMessage(`Encountered an error sending an application to \`${user}\``)
+													.then(() => {
+														discordLogger.logMessage(error);
+													});
+											}
+										});
+								})
+								.catch((error) => {
+									logger.error(error);
+									discordLogger.logMessage(error);
+									interaction.reply({
+										content:
+											'Encountered an error creating a new application. Contact staff if this issue persists.',
+										ephemeral: true
+									});
+								});
+						})
+						.catch((error) => {
+							logger.error(error);
+							discordLogger.logMessage(error);
+							interaction.reply({
+								content:
+									'Could not find your rejected application. Contact staff if this issue persists.',
+								ephemeral: true
+							});
+						});
 				} else if (buttonId === 'applicationAcceptButton') {
 					interaction.guild.members
 						.fetch(application.getUserId())
@@ -199,7 +268,11 @@ module.exports = {
 								.setColor('#00ff00');
 							acceptChannel.send({ embeds: [acceptedApplicationEmbed] });
 
-							// await interaction.message.delete();
+							application.setStatus('accepted');
+							application.setReviewTimestamp(new Date());
+							await applicationManager.saveApplication(application.getUserId(), application);
+
+							await interaction.message.delete();
 							await interaction.reply({
 								content: `Successfully accepted application for \`${application.getUsername()} (${application.getUserId()})\`. Delete any review requests manually.`,
 								ephemeral: true

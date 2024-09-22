@@ -74,9 +74,14 @@ function parseTimeInput(input) {
 	}
 }
 
+function escape(input) {
+	return input.replace("'", "''");
+}
+
 module.exports = {
 	buildActionRows,
 	convertDate,
 	mapToString,
-	parseTimeInput
+	parseTimeInput,
+	escape
 };
