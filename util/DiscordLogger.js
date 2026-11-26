@@ -107,5 +107,5 @@ class DiscordLogger {
 }
 
 module.exports = {
-	DiscordLogger
+	DiscordLogger,
 };

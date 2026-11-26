@@ -1,12 +1,28 @@
 {
-	"dependencies": {
-		"date-and-time": "^3.5.0",
-		"discord.js": "^14.15.3",
-		"https": "^1.0.0",
-		"log4js": "^6.9.1",
-		"pg": "^8.13.0"
+	"name": "sentry",
+	"version": "1.0.0",
+	"description": "MLE Admissions Bot",
+	"homepage": "https://github.com/Minor-League-Esports/sentry",
+	"bugs": {
+		"url": "https://github.com/Minor-League-Esports/sentry/issues"
 	},
-	"devDependencies": {
-		"eslint": "^9.4.0"
+	"license": "MIT",
+	"main": "index.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Minor-League-Esports/sentry"
+	},
+	"scripts": {
+		"start": "NODE_VERSION=26 node index.js",
+		"dev:start": "NODE_VERSION=26 node --trace-warnings index.js",
+		"dev": "yarn install && yarn dev:start"
+	},
+	"dependencies": {
+		"discord.js": "^14.27.0",
+		"log4js": "^6.9.1",
+		"pg": "^8.23.0"
+	},
+	"engines": {
+		"node": "^26.13.1"
 	}
 }
